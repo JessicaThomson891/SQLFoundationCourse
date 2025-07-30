@@ -1,0 +1,28 @@
+{
+  "name": "SQL Student CodeSpace",
+  "image": "mcr.microsoft.com/vscode/devcontainers/universal:2",  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-mssql.mssql"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "mssql.connections": [
+          {
+            "server": "zomalex-sql.database.windows.net",
+            "database": "LearnSQL",
+            "authenticationType": "SqlLogin",
+            "user": "student10",
+            "savePassword": true,
+            "encrypt": "Mandatory",
+            "trustServerCertificate": true,
+            "port": 1433
+          }
+        ]
+      }
+    }
+  },
+  "forwardPorts": [1433],
+  "postCreateCommand": "mkdir -p /home/vscode/.vscode && echo '[{\"key\":\"f5\",\"command\":\"extension.sql.executeCurrentStatement\"}]' > /home/vscode/.vscode/keybindings.json"
+}
