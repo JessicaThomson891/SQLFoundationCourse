@@ -9,7 +9,7 @@ Comments can also be across several lines
 SQL does not care about white space or capitalisation but you should!
 */
 -- simplest statement, bring back all data from a table
-SELECT 
+SELECT
 	*
 FROM
 	PatientStay;
@@ -74,7 +74,40 @@ FROM
 	PatientStay ps
 WHERE
 	ps.Hospital IN ('Kingston', 'PRUH');
-	--WHERE ps.Hospital LIKE 'Kin%'
+--WHERE ps.Hospital LIKE 'Kin%'
+
+
+--Reminder date for 2 weeks before AdmittedDate using 'DATEADD' function
+--Reminder date for appointmentdate 3 months post discharge. 
+SELECT
+	ps.PatientId
+    , ps.AdmittedDate
+	, DATEADD(WEEK, -2, ps.AdmittedDate) AS ReminderDate
+	, DATEADD(Month, +3, ps.DischargeDate) AS AppointmentDate --- 3months post discharge 
+	, DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) AS DaysInHospital
+    , ps.Hospital
+    , ps.Ward
+    , ps.Tariff
+	, ps.DischargeDate
+FROM
+	PatientStay ps
+WHERE ps.Hospital IN ('Kingston', 'PRUH' )
+	AND ps.Ward LIKE '%Surgery'
+	AND ps.AdmittedDate BETWEEN DATEFROMPARTS(2024, 2, 26) AND DATEFROMPARTS(2024,3,1)
+ORDER BY
+    ps.AdmittedDate DESC,
+    ps.Ward ASC;
+
+
+--Select date from parts 
+SELECT DATEFROMPARTS(2025, 07, 30) as TheDate
+
+
+
+
+
+
+
 
 /*
 Sort: by the values of one or more columns with the ORDER BY clause
@@ -131,7 +164,7 @@ Aggregate is to get a single result from a set of numbers
 Aggregation functions include SUM() and COUNT(*) but also MIN(), MAX(), AVERAGE()..
 We can group by at whatever level of aggregation we need and calculate several aggregations
 */
-	
+
 -- Aggregate over the entire dataset
 SELECT
 	COUNT(*) AS NumberOfPatients
@@ -193,7 +226,7 @@ SELECT
 	*
 FROM
 	PatientStay ps
-JOIN DimHospital h ON
+	JOIN DimHospital h ON
 	ps.Hospital = h.Hospital;
 
 /*
@@ -207,5 +240,23 @@ SELECT
 	, h.HospitalSize
 FROM
 	PatientStay ps
-JOIN DimHospital h ON
+	JOIN DimHospital h ON
 	ps.Hospital = h.Hospital;
+
+
+
+SELECT
+	ps.Hospital --table- this column is needed in the output as we're using it later on in the groupby
+, COUNT(*) AS 'Number of patients' --No. of patients/rows in table
+, SUM (ps.Tariff) AS TotalTariff --Sum of total tariff
+, Avg(ps.Tariff) AS AverageTariff --average tariff
+, MIN(ps.Tariff) AS MinTariff
+-- Minimum tariff/lowest cost patient
+FROM
+	PatientStay ps
+--table columns brought in from is PatientStay
+GROUP BY
+ps.Hospital
+--group by hospital
+ORDER BY 
+[Number of patients] DESC --ordered by highest number of patients
